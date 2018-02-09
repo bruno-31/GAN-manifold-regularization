@@ -196,7 +196,7 @@ def main(_):
             tf.summary.scalar('accuracy_test_moving_average', acc_test_pl_ema, ['epoch'])
             tf.summary.scalar('accuracy_test_raw', acc_test_pl, ['epoch'])
             tf.summary.scalar('learning_rate', lr_pl, ['epoch'])
-            tf.summary.scalar('kl_weight', kl_weight, ['epoch'])
+            tf.summary.scalar('j_weight', kl_weight, ['epoch'])
 
         sum_op_dis = tf.summary.merge_all('dis')
         sum_op_gen = tf.summary.merge_all('gen')
@@ -322,9 +322,9 @@ def main(_):
                 writer.add_summary(sum, epoch)
 
                 print(
-                    "Epoch %d | time = %ds | kl = %0.2e | lr = %0.2e | loss gen = %.4f | loss lab = %.4f | loss unl = %.4f "
+                    "Epoch %d | time = %ds | loss gen = %.4f | loss lab = %.4f | loss unl = %.4f "
                     "| train acc = %.4f| test acc = %.4f | test acc ema = %0.4f"
-                    % (epoch, time.time() - begin, klw, lr, train_loss_gen, train_loss_lab, train_loss_unl, train_acc,
+                    % (epoch, time.time() - begin, train_loss_gen, train_loss_lab, train_loss_unl, train_acc,
                        test_acc, test_acc_ma))
 
             sess.run(inc_global_epoch)
