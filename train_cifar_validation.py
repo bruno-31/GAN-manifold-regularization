@@ -72,11 +72,9 @@ def main(_):
 
     # load CIFAR-10
     trainx, trainy = cifar10_input._get_dataset(FLAGS.data_dir, 'train')  # float [-1 1] images
-    testx, testy = cifar10_input._get_dataset(FLAGS.data_dir, 'test')
     trainx_unl = trainx.copy()
     trainx_unl2 = trainx.copy()
     nr_batches_train = int(trainx.shape[0] / FLAGS.batch_size)
-    nr_batches_test = int(testx.shape[0] / FLAGS.batch_size)
 
     # select labeled data
     inds = rng_data.permutation(trainx.shape[0])
@@ -97,11 +95,9 @@ def main(_):
     validationy = np.concatenate(validationy, axis=0)
 
     nr_batches_validation = int(validationx.shape[0] / FLAGS.batch_size)
-    print('train examples %d, batch %d, validation examples %d, batch %d test examples %d,batch %d' \
-          % (trainx.shape[0], nr_batches_train, validationx.shape[0], nr_batches_validation, testx.shape[0],
-             nr_batches_test))
+    print('train examples %d, batch %d, validation examples %d, batch %d' \
+          % (trainx.shape[0], nr_batches_train, validationx.shape[0], nr_batches_validation))
     print('histogram train', np.histogram(trainy, bins=10)[0])
-    print('histogram test ', np.histogram(testy, bins=10)[0])
     print("histogram labeled", np.histogram(tys, bins=10)[0])
     print('histogram validation ', np.histogram(validationy, bins=10)[0])
     print("")
@@ -115,8 +111,8 @@ def main(_):
     # scalar pl
     lr_pl = tf.placeholder(tf.float32, [], name='learning_rate_pl')
     acc_train_pl = tf.placeholder(tf.float32, [], 'acc_train_pl')
-    acc_test_pl = tf.placeholder(tf.float32, [], 'acc_test_pl')
-    acc_test_pl_ema = tf.placeholder(tf.float32, [], 'acc_test_pl')
+    acc_val_pl = tf.placeholder(tf.float32, [], 'acc_val_pl')
+    acc_val_pl_ema = tf.placeholder(tf.float32, [], 'acc_val_pl_ema')
     kl_weight = tf.placeholder(tf.float32, [], 'kl_weight')
 
     random_z = tf.random_uniform([FLAGS.batch_size, 100], name='random_z')
@@ -203,8 +199,8 @@ def main(_):
 
         with tf.name_scope('epoch'):
             tf.summary.scalar('accuracy_train', acc_train_pl, ['epoch'])
-            tf.summary.scalar('accuracy_test_moving_average', acc_test_pl_ema, ['epoch'])
-            tf.summary.scalar('accuracy_test_raw', acc_test_pl, ['epoch'])
+            tf.summary.scalar('accuracy_validation_moving_average', acc_val_pl_ema, ['epoch'])
+            tf.summary.scalar('accuracy_validation_raw', acc_val_pl, ['epoch'])
             tf.summary.scalar('learning_rate', lr_pl, ['epoch'])
             tf.summary.scalar('kl_weight', kl_weight, ['epoch'])
 
@@ -312,43 +308,31 @@ def main(_):
             train_j_loss /= nr_batches_train
 
             # Testing moving averaged model and raw model
-            # TEST
-            for t in range(nr_batches_test):
-                ran_from = t * FLAGS.batch_size
-                ran_to = (t + 1) * FLAGS.batch_size
-                feed_dict = {inp: testx[ran_from:ran_to],
-                             lbl: testy[ran_from:ran_to],
-                             is_training_pl: False}
-                acc, acc_ema = sess.run([accuracy_classifier, accuracy_ema], feed_dict=feed_dict)
-                test_acc += acc
-                test_acc_ma += acc_ema
-            test_acc /= nr_batches_test
-            test_acc_ma /= nr_batches_test
+            if (epoch % FLAGS.freq_test == 0) | (epoch == FLAGS.epoch-1):
+                # VALIDATION
+                for t in range(nr_batches_validation):
+                    ran_from = t * FLAGS.batch_size
+                    ran_to = (t + 1) * FLAGS.batch_size
+                    feed_dict = {inp: validationx[ran_from:ran_to],
+                                 lbl: validationy[ran_from:ran_to],
+                                 is_training_pl: False}
+                    acc, acc_ema = sess.run([accuracy_classifier, accuracy_ema], feed_dict=feed_dict)
+                    val_acc += acc
+                    val_acc_ma += acc_ema
+                val_acc /= nr_batches_validation
+                val_acc_ma /= nr_batches_validation
 
-            sum = sess.run(sum_op_epoch, feed_dict={acc_train_pl: train_acc,
-                                                    acc_test_pl: test_acc,
-                                                    acc_test_pl_ema: test_acc_ma,
-                                                    lr_pl: lr, kl_weight: klw})
-            writer.add_summary(sum, epoch)
+                sum = sess.run(sum_op_epoch, feed_dict={acc_train_pl: train_acc,
+                                                        acc_val_pl: val_acc,
+                                                        acc_val_pl_ema: val_acc_ma,
+                                                        lr_pl: lr, kl_weight: klw})
+                writer.add_summary(sum, epoch)
 
-            # VALIDATION
-            for t in range(nr_batches_validation):
-                ran_from = t * FLAGS.batch_size
-                ran_to = (t + 1) * FLAGS.batch_size
-                feed_dict = {inp: validationx[ran_from:ran_to],
-                             lbl: validationy[ran_from:ran_to],
-                             is_training_pl: False}
-                acc, acc_ema = sess.run([accuracy_classifier, accuracy_ema], feed_dict=feed_dict)
-                val_acc += acc
-                val_acc_ma += acc_ema
-            val_acc /= nr_batches_validation
-            val_acc_ma /= nr_batches_validation
-
-            print(
-                "Epoch %d | time = %ds | kl = %0.2e | lr = %0.2e | loss gen = %.4f | loss lab = %.4f | loss unl = %.4f "
-                "| train = %.4f | validation = %.4f | validation ema = %0.4f | test = %.4f | test ema = %0.4f"
-                % (epoch, time.time() - begin, klw, lr, train_loss_gen, train_loss_lab, train_loss_unl, train_acc,
-                   val_acc, val_acc_ma, test_acc, test_acc_ma))
+                print(
+                    "Epoch %d | time = %ds | loss gen = %.4f | loss lab = %.4f | loss unl = %.4f "
+                    "| train = %.4f | validation = %.4f | validation ema = %0.4f"
+                    % (epoch, time.time() - begin, train_loss_gen, train_loss_lab, train_loss_unl, train_acc,
+                       val_acc, val_acc_ma))
 
             sess.run(inc_global_epoch)
 

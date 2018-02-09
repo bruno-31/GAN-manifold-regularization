@@ -14,8 +14,8 @@ flags = tf.app.flags
 flags.DEFINE_integer("batch_size", 100, "batch size [100]")
 flags.DEFINE_string('data_dir', './data/svhn', 'data directory')
 flags.DEFINE_string('logdir', './log/000', 'log directory')
-flags.DEFINE_integer('seed', 10, 'seed ')
-flags.DEFINE_integer('seed_data', 10, 'seed data')
+flags.DEFINE_integer('seed', 324, 'seed ')
+flags.DEFINE_integer('seed_data', 631, 'seed data')
 flags.DEFINE_integer('labeled', 100, 'labeled data per class')
 flags.DEFINE_float('learning_rate', 0.0003, 'learning_rate[0.003]')
 flags.DEFINE_float('unl_weight', 1.0, 'unlabeled weight [1.]')
@@ -340,7 +340,7 @@ def main(_):
             sess.run(inc_global_epoch)
 
             # save snap shot of model
-            if ((epoch % FLAGS.freq_save == 0) & (epoch!=0) ) | (epoch == 1199):
+            if ((epoch % FLAGS.freq_save == 0) & (epoch!=0) ) | (epoch == FLAGS.epoch-1):
                 string = 'model-' + str(epoch)
                 save_path = os.path.join(FLAGS.logdir, string)
                 sv.saver.save(sess, save_path)

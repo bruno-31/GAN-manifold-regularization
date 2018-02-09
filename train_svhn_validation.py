@@ -13,8 +13,8 @@ flags = tf.app.flags
 flags.DEFINE_integer("batch_size", 100, "batch size [100]")
 flags.DEFINE_string('data_dir', './data/svhn', 'data directory')
 flags.DEFINE_string('logdir', './log/000', 'log directory')
-flags.DEFINE_integer('seed', 10, 'seed ')
-flags.DEFINE_integer('seed_data', 10, 'seed data')
+flags.DEFINE_integer('seed', 324, 'seed ')
+flags.DEFINE_integer('seed_data', 631, 'seed data')
 flags.DEFINE_integer('labeled', 90, 'labeled data per class')
 flags.DEFINE_integer('validation', 10, 'validation per class')
 flags.DEFINE_float('learning_rate', 0.0003, 'learning_rate[0.003]')
@@ -69,16 +69,13 @@ def main(_):
     rng_data = np.random.RandomState(FLAGS.seed_data)  # seed shuffling
 
     trainx, trainy = svhn_data.load(FLAGS.data_dir, 'train')
-    testx, testy = svhn_data.load(FLAGS.data_dir, 'test')
     def rescale(mat):
         return np.transpose(((-127.5 + mat) / 127.5), (3, 0, 1, 2))
     trainx = rescale(trainx)
-    testx = rescale(testx)
 
     trainx_unl = trainx.copy()
     trainx_unl2 = trainx.copy()
     nr_batches_train = int(trainx.shape[0] / FLAGS.batch_size)
-    nr_batches_test = int(testx.shape[0] / FLAGS.batch_size)
 
     # select labeled data
     inds = rng_data.permutation(trainx.shape[0])
@@ -101,10 +98,9 @@ def main(_):
     nr_batches_validation = int(validationx.shape[0] / FLAGS.batch_size)
 
     print("Data:")
-    print('train examples %d, nr batch training %d, test examples %d, nr batch testing %d' \
-          % (trainx.shape[0], nr_batches_train, testx.shape[0], nr_batches_test))
+    print('train examples %d, nr batch training %d, validation examples %d, nr batch validation %d' \
+          % (trainx.shape[0], nr_batches_train, validationx.shape[0], nr_batches_validation))
     print('histogram train', np.histogram(trainy, bins=10)[0])
-    print('histogram test ', np.histogram(testy, bins=10)[0])
     print("histogram labeled", np.histogram(tys, bins=10)[0])
     print('histogram validation ', np.histogram(validationy, bins=10)[0])
     print("")
@@ -118,8 +114,8 @@ def main(_):
     # scalar pl
     lr_pl = tf.placeholder(tf.float32, [], name='learning_rate_pl')
     acc_train_pl = tf.placeholder(tf.float32, [], 'acc_train_pl')
-    acc_test_pl = tf.placeholder(tf.float32, [], 'acc_test_pl')
-    acc_test_pl_ema = tf.placeholder(tf.float32, [], 'acc_test_pl')
+    acc_val_pl = tf.placeholder(tf.float32, [], 'acc_test_pl')
+    acc_val_pl_ema = tf.placeholder(tf.float32, [], 'acc_test_pl')
     kl_weight = tf.placeholder(tf.float32, [], 'kl_weight')
 
     random_z = tf.random_uniform([FLAGS.batch_size, 100], name='random_z')
@@ -211,8 +207,8 @@ def main(_):
 
         with tf.name_scope('epoch'):
             tf.summary.scalar('accuracy_train', acc_train_pl, ['epoch'])
-            tf.summary.scalar('accuracy_test_moving_average', acc_test_pl_ema, ['epoch'])
-            tf.summary.scalar('accuracy_test_raw', acc_test_pl, ['epoch'])
+            tf.summary.scalar('accuracy_test_moving_average', acc_val_pl_ema, ['epoch'])
+            tf.summary.scalar('accuracy_test_raw', acc_val_pl, ['epoch'])
             tf.summary.scalar('learning_rate', lr_pl, ['epoch'])
             tf.summary.scalar('kl_weight', kl_weight, ['epoch'])
 
@@ -257,7 +253,7 @@ def main(_):
                 break
 
             begin = time.time()
-            train_loss_lab= train_loss_unl= train_loss_gen= train_acc= test_acc= test_acc_ma= train_j_loss=val_acc=val_acc_ma = 0
+            train_loss_lab= train_loss_unl= train_loss_gen= train_acc= train_j_loss=val_acc=val_acc_ma = 0
             lr = FLAGS.learning_rate * linear_decay(FLAGS.decay_start,FLAGS.epoch,epoch)
 
             klw = FLAGS.nabla_w
@@ -318,7 +314,7 @@ def main(_):
             train_j_loss /= nr_batches_train
 
             # Testing moving averaged model and raw model after each epoch
-            if (epoch % FLAGS.freq_test == 0) | (epoch == 1199):
+            if (epoch % FLAGS.freq_test == 0) | (epoch == FLAGS.epoch-1):
                 # VALIDATION
                 for t in range(nr_batches_validation):
                     ran_from = t * FLAGS.batch_size
@@ -332,38 +328,23 @@ def main(_):
                 val_acc /= nr_batches_validation
                 val_acc_ma /= nr_batches_validation
 
-                #TEST
-                idx = rng.permutation(testx.shape[0])
-                testx = testx[idx]
-                testy = testy[idx]
-                for t in range(nr_batches_test):
-                    ran_from = t * FLAGS.batch_size
-                    ran_to = (t + 1) * FLAGS.batch_size
-                    feed_dict = {inp: testx[ran_from:ran_to],
-                                 lbl: testy[ran_from:ran_to],
-                                 is_training_pl: False}
-                    acc, acc_ema = sess.run([accuracy_classifier, accuracy_ema], feed_dict=feed_dict)
-                    test_acc += acc
-                    test_acc_ma += acc_ema
-                test_acc /= nr_batches_test
-                test_acc_ma /= nr_batches_test
 
                 sum = sess.run(sum_op_epoch, feed_dict={acc_train_pl: train_acc,
-                                                        acc_test_pl: test_acc,
-                                                        acc_test_pl_ema: test_acc_ma,
+                                                        acc_val_pl: val_acc,
+                                                        acc_val_pl_ema: val_acc_ma,
                                                         lr_pl: lr, kl_weight: klw})
                 writer.add_summary(sum, epoch)
 
                 print(
-                    "Epoch %d | time = %ds | kl = %0.2e | lr = %0.2e | loss gen = %.4f | loss lab = %.4f | loss unl = %.4f "
-                    "| train = %.4f | validation = %.4f | validation ema = %0.4f | test = %.4f | test ema = %0.4f"
-                    % (epoch, time.time() - begin, klw, lr, train_loss_gen, train_loss_lab, train_loss_unl, train_acc,
-                       val_acc, val_acc_ma, test_acc, test_acc_ma))
+                    "Epoch %d | time = %ds | loss gen = %.4f | loss lab = %.4f | loss unl = %.4f "
+                    "| train = %.4f | validation = %.4f | validation ema = %0.4f"
+                    % (epoch, time.time() - begin, train_loss_gen, train_loss_lab, train_loss_unl, train_acc,
+                       val_acc, val_acc_ma))
 
             sess.run(inc_global_epoch)
 
             # save snap shot of model
-            if ((epoch % FLAGS.freq_save == 0) & (epoch!=0) ) | (epoch == 1199):
+            if ((epoch % FLAGS.freq_save == 0) & (epoch!=0) ) | (epoch == FLAGS.epoch-1):
                 string = 'model-' + str(epoch)
                 save_path = os.path.join(FLAGS.logdir, string)
                 sv.saver.save(sess, save_path)
