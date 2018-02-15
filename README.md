@@ -1,8 +1,5 @@
-# GAN-manifold-regularization
+# Semi-Supervised Learning With GANs: Revisiting Manifold Regularization
 Our code for the paper
-
-
-# Good Semi-Supervised Learning that Requires a Bad GAN
 
 This is the code we used in our paper
 
@@ -32,17 +29,15 @@ python train_cifar.py
 
 Here is a comparison of different models using standard architectures without ensembles (100 labels on MNIST, 1000 labels on SVHN, and 4000 labels on CIFAR):
 
-Method | MNIST (# errors) | SVHN (% errors) | CIFAR (% errors)
+Method | SVHN (% errors) | CIFAR (% errors)
 -- | -- | -- | --
 CatGAN | - | 19.58 +/- 0.46
-SDGM | 16.61 +/- 0.24 | -
 Ladder Network | - | 20.40 +/- 0.47
-ADGM | 22.86 | -
 FM  | 8.11 +/- 1.3 | 18.63 +/- 2.32
 ALI | 7.42 +/- 0.65 | 17.99 +/- 1.62
-VAT small  6.83 | 14.87
+VAT small |  6.83 | 14.87
 Bad GAN  | 4.25 +/- 0.03 | 14.41 +/- 0.30
-Ours | **4.51 +/- 0.22 **| **14.45 +/- 0.21**|
+Ours | **4.51 +/- 0.22 **| **14.45 +/- 0.21**
 
 
 
