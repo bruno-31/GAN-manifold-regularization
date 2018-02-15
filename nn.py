@@ -1,5 +1,8 @@
 """
 Various tensorflow utilities
+Function taken from the repo: https://github.com/openai/weightnorm
+This repo contains example code for Weight Normalization, as described in their paper:
+Weight Normalization: A Simple Reparameterization to Accelerate Training of Deep Neural Networks, by Tim Salimans, and Diederik P. Kingma.
 """
 
 import numpy as np
