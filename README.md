@@ -5,7 +5,7 @@ This is the code we used in our paper
 
 >[Semi-Supervised Learning With GANs: Revisiting Manifold Regularization]
 
->Bruno Lecouat, Chuan Sheng Foo, Houssam Zenati, Vijay Ramaseshan Chandrasekhar
+>Bruno Lecouat*, Chuan Sheng Foo*, Houssam Zenati, Vijay Ramaseshan Chandrasekhar
 
 ## Requirements
 
@@ -30,7 +30,7 @@ python train_cifar.py
 Here is a comparison of different models using standard architectures without ensembles (100 labels on MNIST, 1000 labels on SVHN, and 4000 labels on CIFAR):
 
 Method | SVHN (% errors) | CIFAR (% errors)
--- | -- | -- | --
+-- | -- | --
 CatGAN | - | 19.58 +/- 0.46
 Ladder Network | - | 20.40 +/- 0.47
 FM  | 8.11 +/- 1.3 | 18.63 +/- 2.32
