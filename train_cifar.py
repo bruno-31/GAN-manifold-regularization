@@ -13,7 +13,7 @@ import sys
 flags = tf.app.flags
 flags.DEFINE_integer("batch_size", 25, "batch size [250]")
 flags.DEFINE_string('data_dir', './data/cifar-10-python', 'data directory')
-flags.DEFINE_string('logdir', './log/000', 'log directory')
+flags.DEFINE_string('logdir', './log/cifar', 'log directory')
 flags.DEFINE_integer('seed', 10, 'seed numpy')
 flags.DEFINE_integer('seed_data', 10, 'seed data')
 flags.DEFINE_integer('labeled', 400, 'labeled data per class')
@@ -26,7 +26,7 @@ flags.DEFINE_float('scale', 1e-5, 'scale perturbation')
 flags.DEFINE_float('nabla_w', 1e-3, 'weight regularization')
 flags.DEFINE_integer('decay_start', 1200, 'start of learning rate decay')
 flags.DEFINE_integer('epoch', 1400, 'labeled data per class')
-flags.DEFINE_boolean('nabla', False, 'enable manifold reg')
+flags.DEFINE_boolean('nabla', True, 'enable manifold reg')
 
 
 flags.DEFINE_integer('freq_print', 10000, 'frequency image print tensorboard [10000]')
@@ -36,7 +36,7 @@ flags.DEFINE_integer('freq_save', 50, 'frequency saver epoch[50]')
 
 FLAGS = flags.FLAGS
 FLAGS._parse_flags()
-print("\nParametersJACOBI:")
+print("\nParameters:")
 for attr, value in sorted(FLAGS.__flags.items()):
     print("{}={}".format(attr.lower(), value))
 print("")

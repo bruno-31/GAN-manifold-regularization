@@ -13,7 +13,7 @@ import sys
 flags = tf.app.flags
 flags.DEFINE_integer("batch_size", 100, "batch size [100]")
 flags.DEFINE_string('data_dir', './data/svhn', 'data directory')
-flags.DEFINE_string('logdir', './log/000', 'log directory')
+flags.DEFINE_string('logdir', './log/svhn', 'log directory')
 flags.DEFINE_integer('seed', 324, 'seed ')
 flags.DEFINE_integer('seed_data', 631, 'seed data')
 flags.DEFINE_integer('labeled', 100, 'labeled data per class')
@@ -26,7 +26,7 @@ flags.DEFINE_float('scale', 1e-5, 'scale perturbation')
 flags.DEFINE_float('nabla_w', 1e-3, 'weight regularization')
 flags.DEFINE_integer('decay_start', 300, 'start of learning rate decay')
 flags.DEFINE_integer('epoch', 400, 'labeled data per class')
-flags.DEFINE_boolean('nabla', False, 'enable manifold reg')
+flags.DEFINE_boolean('nabla', True, 'enable manifold reg')
 
 
 flags.DEFINE_integer('freq_print', 10000, 'frequency image print tensorboard [10000]')
@@ -36,7 +36,7 @@ flags.DEFINE_integer('freq_save', 50, 'frequency saver epoch[50]')
 
 FLAGS = flags.FLAGS
 FLAGS._parse_flags()
-print("\nParameters small")
+print("\nParameters")
 for attr, value in sorted(FLAGS.__flags.items()):
     print("{}={}".format(attr.lower(), value))
 print("")
@@ -191,8 +191,7 @@ def main(_):
     with tf.name_scope('summary'):
         with tf.name_scope('discriminator'):
             tf.summary.scalar('loss_discriminator', loss_dis, ['dis'])
-            if FLAGS.jacob_reg | FLAGS.kl_reg:
-                tf.summary.scalar('j_loss', j_loss, ['dis'])
+            tf.summary.scalar('j_loss', j_loss, ['dis'])
 
         with tf.name_scope('generator'):
             tf.summary.scalar('loss_generator', loss_gen, ['gen'])

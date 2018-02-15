@@ -1,5 +1,4 @@
 # Semi-Supervised Learning With GANs: Revisiting Manifold Regularization
-Our code for the paper
 
 This is the code we used in our paper
 
@@ -27,7 +26,7 @@ python train_cifar.py
 
 ## Results
 
-Here is a comparison of different models using standard architectures without ensembles (100 labels on MNIST, 1000 labels on SVHN, and 4000 labels on CIFAR):
+Here is a comparison of different models using standard architectures (1000 labels on SVHN, and 4000 labels on CIFAR):
 
 Method | SVHN (% errors) | CIFAR (% errors)
 -- | -- | --
