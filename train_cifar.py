@@ -62,7 +62,7 @@ def linear_decay(decay_start, decay_end, epoch):
 
 def main(_):
     if not os.path.exists(FLAGS.logdir):
-        os.mkdir(FLAGS.logdir)
+        os.makedirs(FLAGS.logdir)
 
     # Random seed
     rng = np.random.RandomState(FLAGS.seed)  # seed labels
