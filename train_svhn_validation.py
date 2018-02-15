@@ -4,7 +4,7 @@ import time
 import numpy as np
 import tensorflow as tf
 
-from svhn_large import discriminator, generator
+from svhn_gan import discriminator, generator
 from data import svhn_data
 import sys
 

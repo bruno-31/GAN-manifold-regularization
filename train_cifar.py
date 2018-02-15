@@ -5,7 +5,7 @@ import numpy as np
 import tensorflow as tf
 
 from data import cifar10_input
-from cifar_gan_new import discriminator, generator
+from cifar_gan import discriminator, generator
 import sys
 
 # os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
