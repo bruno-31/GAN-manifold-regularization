@@ -112,7 +112,6 @@ def main(_):
     random_z = tf.random_uniform([FLAGS.batch_size, 100], name='random_z')
     perturb = tf.random_normal([FLAGS.batch_size, 100], mean=0, stddev=0.01)
     random_z_pert = random_z + FLAGS.scale * perturb / (
-
     tf.expand_dims(tf.norm(perturb, axis=1), axis=1) * tf.ones([1, 100]))
     generator(random_z, is_training_pl, init=True)  # init of weightnorm weights
     gen_inp = generator(random_z, is_training_pl, init=False, reuse=True)

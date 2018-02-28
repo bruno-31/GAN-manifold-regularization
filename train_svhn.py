@@ -11,7 +11,7 @@ import sys
 # os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 flags = tf.app.flags
-flags.DEFINE_integer("batch_size", 100, "batch size [100]")
+flags.DEFINE_integer("batch_size", 50, "batch size [50]")
 flags.DEFINE_string('data_dir', './data/svhn', 'data directory')
 flags.DEFINE_string('logdir', './log/svhn', 'log directory')
 flags.DEFINE_integer('seed', 324, 'seed ')
