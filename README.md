@@ -1,7 +1,6 @@
 # Semi-Supervised Learning With GANs: Revisiting Manifold Regularization
 
-This is the code we used in our paper
-
+This is the code we used in [our](https://openreview.net/forum?id=Hy5QRt1wz) paper
 >[Semi-Supervised Learning With GANs: Revisiting Manifold Regularization]
 
 >Bruno Lecouat*, Chuan Sheng Foo*, Houssam Zenati, Vijay Ramaseshan Chandrasekhar
