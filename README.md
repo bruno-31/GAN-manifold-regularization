@@ -11,7 +11,7 @@ Please cite our work if you find it useful for your research and work!
 
 ```
 @misc{
-  lecouat2018semi-supervised,
+  lecouat2018,
   title={Semi-Supervised Learning With GANs: Revisiting Manifold Regularization},
   author={Bruno Lecouat and Chuan Sheng Foo and Houssam Zenati and Vijay Ramaseshan Chandrasekhar},
   year={2018},
