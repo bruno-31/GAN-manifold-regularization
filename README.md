@@ -9,6 +9,7 @@ Please reach us via emails or via github issues for any enquiries!
 
 Please cite our work if you find it useful for your research and work!
 
+```
 @misc{
   lecouat2018semi-supervised,
   title={Semi-Supervised Learning With GANs: Revisiting Manifold Regularization},
@@ -16,6 +17,9 @@ Please cite our work if you find it useful for your research and work!
   year={2018},
   url={https://openreview.net/forum?id=Hy5QRt1wz}
 }
+
+```
+
 
 ## Requirements
 
