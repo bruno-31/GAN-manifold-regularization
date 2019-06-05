@@ -6,12 +6,10 @@ import errno
 import tarfile
 import shutil
 import numpy as np
-
 import urllib3
 
 
 _shuffle = True
-
 
 def _unpickle_file(filename):
     # print("Loading pickle file: {}".format(filename))
@@ -32,8 +30,6 @@ def _unpickle_file(filename):
 def _get_dataset(path,split):
     assert split == "test" or split == "train"
     dirname = "cifar-10-batches-py"
-    # data_url = "http://10.217.128.198/datasets/cifar-10-python.tar.gz"
-    # data_url = "http://10.217.128.198/mnt/data_c/datasets/cifar-10-python.tar.gz"
     data_url = 'http://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz'
     if not os.path.exists(os.path.join(path, dirname)):
         # Extract or download data
