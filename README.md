@@ -5,6 +5,18 @@ This is the code we used in [our](https://openreview.net/forum?id=Hy5QRt1wz) pap
 
 >Bruno Lecouat*, Chuan Sheng Foo*, Houssam Zenati, Vijay Ramaseshan Chandrasekhar
 
+Please reach us via emails or via github issues for any enquiries!
+
+Please cite our work if you find it useful for your research and work!
+
+@misc{
+  lecouat2018semi-supervised,
+  title={Semi-Supervised Learning With GANs: Revisiting Manifold Regularization},
+  author={Bruno Lecouat and Chuan Sheng Foo and Houssam Zenati and Vijay Ramaseshan Chandrasekhar},
+  year={2018},
+  url={https://openreview.net/forum?id=Hy5QRt1wz}
+}
+
 ## Requirements
 
 The repo supports python 3.5 + tensorflow 1.4
