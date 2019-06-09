@@ -6,7 +6,6 @@ This is the code we used in [our](https://openreview.net/forum?id=Hy5QRt1wz) pap
 >Bruno Lecouat*, Chuan Sheng Foo*, Houssam Zenati, Vijay Ramaseshan Chandrasekhar
 
 Please reach us via emails or via github issues for any enquiries!
-
 Please cite our work if you find it useful for your research and work!
 
 ```
